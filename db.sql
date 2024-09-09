@@ -27,12 +27,15 @@ create table stock_user (
 );
 
 /*주식 체결 기록 테이블*/
-
-/**/
+create table stock_log (
+	account_id int not null,
+	stock_id int not null,
+	stock_number int not null, 
+	PRIMARY KEY (account_id, stock_id)
+);
 
 /*
     주식기능
-
     1. 주식 가격확인 
     2. 매수 매도 
     3. 잔고확인
