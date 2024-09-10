@@ -3,7 +3,7 @@ create table user (
 	account_id int auto_increment primary key,
 	user_id varchar(255) not null,
 	password varchar(255) not null,
-	money int not null,
+	money bigint not null,
 	create_at datetime DEFAULT now()
 );
 
@@ -30,8 +30,9 @@ create table stock_user (
 create table stock_log (
 	account_id int not null,
 	stock_id int not null,
-	stock_number int not null, 
-	PRIMARY KEY (account_id, stock_id)
+	stock_number int not null,
+	trading_type enum('sell','buy') not null,
+	trading_at datetime
 );
 
 /*
