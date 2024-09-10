@@ -3,7 +3,6 @@ const Stockmodel = require('../models/Stockmodel.js');
 //매수
 exports.buy = async (req, res) => {
     const result = await Stockmodel.buy(req);
-    console.log(result)
     res.status(result.status).json({ message: result.message });
 }
 //매도
