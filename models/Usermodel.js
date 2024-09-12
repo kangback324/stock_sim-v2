@@ -1,4 +1,5 @@
 const pool = require('../lib/db.js');
+const isowner = require('../lib/isowner.js')
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -11,7 +12,7 @@ exports.signup = async (req, res) => {
         }   
         else {
             const hashedPassword = await bcrypt.hash(req.body.pw, saltRounds);
-            await db.query('insert into user (user_id, password, money) values(?,?,?)',[req.body.id, hashedPassword, 10000]);
+            await db.query('insert into user (user_id, password, money) values(?,?,?)',[req.body.id, hashedPassword, 1000000]);
             return { status: 200, message: "200 signup success" };
         }
     } catch (err) {
@@ -57,3 +58,24 @@ exports.logout = async (req) => {
         db.release();
     }
 };
+
+exports.isowner = async (req) => {
+    const db = await pool.getConnection();
+    if (await isowner(req)) {
+        try {
+            const [user] = await db.query('select money from user where user_id = ?',[req.session.user_id]);
+            const result = {
+                user_id : req.session.user_id,
+                money : user[0].money
+            }
+            return { status: 200, message: result };
+        } catch (err) {
+            console.log(err);
+            return { status: 500, message: "500 (isowner) internet server error" };
+        } finally {
+            db.release();
+        }
+    } else {
+        return { status: 400, message: "Not login" };
+    }
+}

@@ -24,6 +24,9 @@ exports.buy = async (req) => {
             //로그 남기기
             await db.query('insert into stock_log values(?, ?, ?, "buy", now())',[user[0].account_id,stock_inform[0].stock_id,req.body.number]);
 
+            //돈 줄이기 , (수수료 로직 추가 하기)
+            await db.query('update user set money = ? where account_id = ?',[user[0].money - (stock_inform[0].price * req.body.number), user[0].account_id]);
+            
             //이미 가지고 있는지 확인후 계좌에 추가
             const [result] = await db.query('select * from stock_user where account_id = ? AND stock_id = ?',[user[0].account_id, stock_inform[0].stock_id]);
             if (result.length > 0) {
@@ -34,9 +37,8 @@ exports.buy = async (req) => {
                 await db.query('insert into stock_user values(?, ?, ?, ?)',[user[0].account_id, stock_inform[0].stock_id, req.body.number, stock_inform[0].price]);
             }
 
-            //돈 줄이기 , (수수료 로직 추가 하기)
-            await db.query('update user set money = ? where account_id = ?',[user[0].money - (stock_inform[0].price * req.body.number), user[0].account_id]);
             return { status: 200, message: "200 success !" };     
+            
         } catch (err) {
             console.log(err);
             return { status: 500, message: "500 (buy) internet server error" };
@@ -55,7 +57,41 @@ exports.sell = async (req, res) => {
     if (await isowner(req)) {
         const db = await pool.getConnection();
         try {
-            return { status: 200, message: "Success" };
+            // 유효성 검사
+            //account_id 조회
+            const [user] = await db.query('select account_id, money from user where user_id = ?', [req.session.user_id]);
+            //stock_id 조회
+            const [stock] = await db.query('select stock_id, status, price from stock_inform where name = ?',[req.body.stock_name]);
+            if (stock[0] === undefined || stock[0].status === 'N') {
+                return { status: 400, message: "404 Not found stock" };
+            }
+            if (isNaN(Number(req.body.number)) || Number.isInteger(Number(req.body.number)) === false || Number(req.body.number) < 0) {
+                return { status: 400, message: "400 wrong number" };
+            }
+            //뭐 샀는지 조회
+            const [stock_user] = await db.query('select stock_number from stock_user where account_id = ? AND stock_id = ?',[user[0].account_id, stock[0].stock_id]);
+            if (stock_user[0] === undefined) {
+                return { status: 400, message: "400 Not have" };
+            }
+            const new_number = stock_user[0].stock_number - req.body.number;
+            if (new_number < 0) {
+                 return { status: 400, message: "400 wrong number" };
+            }
+            
+            //로그 남기기
+            await db.query('insert into stock_log values(?, ?, ?, "sell", now())',[user[0].account_id,stock[0].stock_id,req.body.number]);
+
+            //주식 제거하기
+            if (stock_user[0].stock_number - req.body.number === 0) {
+                await db.query('delete from stock_user where account_id = ? AND stock_id = ?',[user[0].account_id, stock[0].stock_id]);
+            } else {
+                await db.query('update stock_user set stock_number = ? where account_id =? AND stock_id = ?',[new_number, user[0].account_id, stock[0].stock_id]);
+            }
+
+            //돈주기, (수수료 로직 추가하기)
+            await db.query('update user set money = ? where account_id = ?',[user[0].money + (stock[0].price * req.body.number) ,user[0].account_id])
+
+            return { status: 200, message: "200 Success !" };
         } catch (err) {
             console.log(err);
             return { status: 500, message: "500 (sell) internet server error" };
