@@ -8,3 +8,4 @@ router.post('/log', StockController.log);
 router.post('/my_account', StockController.my_account);
 
 module.exports = router;
+// 라우터
