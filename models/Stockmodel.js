@@ -1,4 +1,5 @@
 const isowner = require('../lib/isowner.js');
+const logWithTime = require('../lib/logger.js')
 const pool = require('../lib/db.js');
 
 // 매수
@@ -40,7 +41,7 @@ exports.buy = async (req) => {
             return { status: 200, message: "200 success !" };     
             
         } catch (err) {
-            console.log(err);
+            logWithTime(err);
             return { status: 500, message: "500 (buy) internet server error" };
         } finally {
             await db.release();
@@ -93,7 +94,7 @@ exports.sell = async (req, res) => {
 
             return { status: 200, message: "200 Success !" };
         } catch (err) {
-            console.log(err);
+            logWithTime(err);
             return { status: 500, message: "500 (sell) internet server error" };
         } finally {
             await db.release();
@@ -112,7 +113,7 @@ exports.log = async (req, res) => {
         const [result] = await db.query('SELECT si.name AS stock_name, sl.stock_number, sl.trading_type, sl.trading_at FROM stock_log sl INNER JOIN stock_inform si ON sl.stock_id = si.stock_id ORDER BY trading_at desc limit 30');
         return { status: 200, message: result };
     } catch (err) {
-        console.log(err);
+        logWithTime(err);
         return { status: 500, message: "500 (log) internet server error" };
     } finally {
         await db.release();
@@ -129,7 +130,7 @@ exports.my_account = async (req, res) => {
             ,[user[0].account_id]);
             return { status: 200, message: result };
         } catch (err) {
-            console.log(err);
+            logWithTime(err);
             return { status: 500, message: "500 (my_account) internet server error" };
 
         } finally {

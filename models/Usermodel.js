@@ -1,5 +1,7 @@
 const pool = require('../lib/db.js');
+const logWithTime = require('../lib/logger.js')
 const isowner = require('../lib/isowner.js')
+const mongoose = require('mongoose')
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -16,7 +18,7 @@ exports.signup = async (req, res) => {
             return { status: 200, message: "200 signup success" };
         }
     } catch (err) {
-        console.log(err);
+        logWithTime(err);
         return { status : 500, message : "500 (signup) internet server error" };
     } finally {
         db.release();
@@ -39,7 +41,7 @@ exports.login = async (req) => {
             return { status: 400, message: "400 not match login failed" };
         }
     } catch (err) {
-        console.log(err);
+        logWithTime(err);
         return { status: 500, message: "500 (login) internet server error" };
     } finally {
         db.release();
@@ -52,7 +54,7 @@ exports.logout = async (req) => {
         delete req.session.user_id;
         return { status: 200, message: "200 logout success" };
     } catch (err) {
-        console.log(err);
+        logWithTime(err);
         return { status: 500, message: "500 (login) internet server error" };
     } finally {
         db.release();
@@ -70,7 +72,7 @@ exports.isowner = async (req) => {
             }
             return { status: 200, message: result };
         } catch (err) {
-            console.log(err);
+            logWithTime(err);
             return { status: 500, message: "500 (isowner) internet server error" };
         } finally {
             db.release();

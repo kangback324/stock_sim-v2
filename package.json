@@ -10,10 +10,14 @@
   "description": "",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
     "express": "^4.19.2",
     "express-session": "^1.18.0",
+    "http": "^0.0.1-security",
     "mongodb": "^6.8.1",
+    "mongoose": "^8.6.2",
     "mysql2": "^3.11.0",
     "nodemon": "^3.1.4",
     "socket.io": "^4.7.5"

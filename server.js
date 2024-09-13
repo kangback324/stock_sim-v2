@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const logWithTime = require('./lib/logger.js');
 const root_router = require('./routes/root.js');
 const stock_router = require('./routes/stock.js');
 const session = require('express-session');
@@ -29,5 +30,5 @@ app.use('/stock', stock_router);
 
 const PORT = 3000;
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  logWithTime(`Server is running on http://localhost:${PORT}`);
 });
