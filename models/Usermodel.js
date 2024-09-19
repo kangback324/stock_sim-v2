@@ -3,7 +3,8 @@ const logWithTime = require('../lib/logger.js')
 const isowner = require('../lib/isowner.js')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
+const sendEmail = require('../lib/email_inform.js');
+const saltRounds = 10;  
 
 exports.signup = async (req, res) => {
     const db = await pool.getConnection();
@@ -16,6 +17,7 @@ exports.signup = async (req, res) => {
             const hashedPassword = await bcrypt.hash(req.body.pw, saltRounds);
             await db.query('insert into user (user_id, password, money, email) values(?,?,?,?)',[req.body.id, hashedPassword, 1000000, req.body.email]);
             logWithTime(`Server: A user named ${req.body.id} has been created successfully`)
+            sendEmail("hotdog23323303@gmail.com", "hot")
             return { status: 200, message: "200 signup success" };
         }
     } catch (err) {
