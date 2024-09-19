@@ -14,7 +14,8 @@ exports.signup = async (req, res) => {
         }   
         else {
             const hashedPassword = await bcrypt.hash(req.body.pw, saltRounds);
-            await db.query('insert into user (user_id, password, money) values(?,?,?)',[req.body.id, hashedPassword, 1000000]);
+            await db.query('insert into user (user_id, password, money, email) values(?,?,?,?)',[req.body.id, hashedPassword, 1000000, req.body.email]);
+            logWithTime(`Server: A user named ${req.body.id} has been created successfully`)
             return { status: 200, message: "200 signup success" };
         }
     } catch (err) {
@@ -29,12 +30,14 @@ exports.login = async (req) => {
     const db = await pool.getConnection();
     try {
         const [user] = await db.query('select * from user where user_id = ?', [req.body.id]);
-        if (user.length > 0) {
+        if (user.length > 0) { // 존재하는 아이디 인지 확인
             const passwordMatch = await bcrypt.compare(req.body.pw, user[0].password);
-            if (passwordMatch) {
+            if (passwordMatch) { // 비번일치하는지 확인
                 req.session.user_id = req.body.id;
+                logWithTime(`Server: A user named ${req.body.id} has logged in successfully`)
                 return { status: 200, message: "200 login success" };
             } else {
+                logWithTime(`Server: A user named ${req.body.id} has logged in failed`)
                 return { status: 400, message: "400 not match login failed" };
             }
         } else {
@@ -50,14 +53,21 @@ exports.login = async (req) => {
 
 exports.logout = async (req) => {
     const db = await pool.getConnection();
-    try {
-        delete req.session.user_id;
-        return { status: 200, message: "200 logout success" };
-    } catch (err) {
-        logWithTime(err);
-        return { status: 500, message: "500 (login) internet server error" };
-    } finally {
-        db.release();
+    if (await isowner(req)) {
+        try {
+            logWithTime(`Server: A user named ${req.session.user_id} has logged out successfully`)
+            delete req.session.user_id;
+            return { status: 200, message: "200 logout success" };
+        } catch (err) {
+            logWithTime(err);
+            logWithTime(`Server: A user named ${req.session.user_id} has logged out failed`)
+            return { status: 500, message: "500 (login) internet server error" };
+        } finally {
+            db.release();
+        }
+    }
+    else {
+        return { status: 400, message: "Not login" };
     }
 };
 

@@ -1,13 +1,12 @@
-/* user 정보 테이블 */
 create table user (
 	account_id int auto_increment primary key,
 	user_id varchar(255) not null,
 	password varchar(255) not null,
+	email varchar(50) not null,
 	money bigint not null,
 	create_at datetime DEFAULT now()
 );
 
-/* 상장된 주식 정보 테이블*/
 create table stock_inform (
 	stock_id int auto_increment primary key,
 	name varchar (20) not null, 
@@ -17,7 +16,6 @@ create table stock_inform (
 	broken_at datetime
 );
 
-/* 주식 잔고 테이블*/
 create table stock_user (
 	account_id int not null,
 	stock_id int not null,
@@ -26,7 +24,6 @@ create table stock_user (
 	PRIMARY KEY (account_id, stock_id)
 );
 
-/*주식 체결 기록 테이블*/
 create table stock_log (
 	account_id int not null,
 	stock_id int not null,
@@ -34,7 +31,10 @@ create table stock_log (
 	trading_type enum('sell','buy') not null,
 	trading_at datetime
 );
-
+/* user 정보 테이블 */
+/* 상장된 주식 정보 테이블*/
+/* 주식 잔고 테이블*/
+/*주식 체결 기록 테이블*/
 /*
     주식기능
     1. 주식 가격확인 
