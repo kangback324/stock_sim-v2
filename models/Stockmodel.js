@@ -141,3 +141,16 @@ exports.my_account = async (req, res) => {
         return { status : 400, message : "faild (No login User)" }
     }
 }
+
+exports.rank = async (req) => {
+    const db = await pool.getConnection();
+    try {
+        const [result] = await db.query('select * from user ORDER BY money desc limit 10')
+        return {status : 200, message : result};
+    } catch (err) {
+        logWithTime(err);
+        return { status : 500, message : "500 (rank) internet server error" }
+    } finally {
+        db.release();
+    }
+}

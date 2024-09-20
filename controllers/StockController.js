@@ -21,3 +21,8 @@ exports.my_account = async (req, res) => {
     const result = await Stockmodel.my_account(req);
     res.status(result.status).json({ message: result.message });
 };
+
+exports.rank = async (req, res) => {
+    const result = await Stockmodel.rank(req);
+    res.status(result.status).json({ message: result.message });
+}

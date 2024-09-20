@@ -1,11 +1,11 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const logWithTime = require('./lib/logger.js');
 const root_router = require('./routes/root.js');
 const stock_router = require('./routes/stock.js');
 const session = require('express-session');
-const start_stock = require('./lib/updownstock.js')
-
+require('./lib/updownstock.js')
 
 app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true })); //x-www-form-urlencoded 방식, 그래서 객체 형태로 결과나옴
