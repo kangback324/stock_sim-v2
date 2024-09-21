@@ -36,12 +36,29 @@ create table stock_log (
 	trading_at datetime
 );
 
-/*가격 변동 기록 테이블*/
+/*주식 가격 변동 기록 테이블*/
 create table stock_pricelog (
 	stock_id int not null,
 	price int not null,
 	log_at datetime
 )
+
+/*지수 테이블*/
+create table index_inform (
+	index_id int auto_increment primary key,
+	name varchar (20) not null, 
+	price double not null, 
+	status varchar(1) not null,
+	create_at datetime DEFAULT now(),
+	broken_at datetime
+);
+
+/*지수 가격변동 기록 테이블*/
+create table index_pricelog (
+	index_id int not null,
+	price double not null,
+	log_at datetime
+);
 
 /*
     주식기능
@@ -50,7 +67,7 @@ create table stock_pricelog (
     3. 잔고확인
     4. 주식 체결기록 확인
     5. 이용자들 끼리 채팅 기능
-    6.자산 랭킹
+    6. 자산 랭킹
 */
 
 /* 로컬에서 최초실행시 필요한 데이터 */
@@ -68,3 +85,6 @@ insert into stock_pricelog values(3, 60000, now());
 insert into stock_pricelog values(4, 30000, now());
 insert into stock_pricelog values(5, 40000, now());
 insert into stock_pricelog values(6, 35000, now());
+
+insert into index_inform values(null, 'MCSPI', 1500, 'Y', now(), null);
+insert into index_pricelog values(1, 1500, now());
