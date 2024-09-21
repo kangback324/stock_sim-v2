@@ -60,15 +60,6 @@ create table index_pricelog (
 	log_at datetime
 );
 
-/*
-    주식기능
-    1. 주식 가격확인 
-    2. 매수 매도 
-    3. 잔고확인
-    4. 주식 체결기록 확인
-    5. 이용자들 끼리 채팅 기능
-    6. 자산 랭킹
-*/
 
 /* 로컬에서 최초실행시 필요한 데이터 */
 
@@ -86,5 +77,12 @@ insert into stock_pricelog values(4, 30000, now());
 insert into stock_pricelog values(5, 40000, now());
 insert into stock_pricelog values(6, 35000, now());
 
-insert into index_inform values(null, 'MCSPI', 1500, 'Y', now(), null);
+insert into index_inform values(1, 'MCSPI', 1500, 'Y', now(), null);
 insert into index_pricelog values(1, 1500, now());
+
+/* 리셋하기 */
+
+delete from stock_inform;
+delete from stock_pricelog;
+delete from index_inform;
+delete from index_pricelog;
