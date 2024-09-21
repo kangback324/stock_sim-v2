@@ -145,7 +145,7 @@ exports.my_account = async (req, res) => {
 exports.rank = async (req) => {
     const db = await pool.getConnection();
     try {
-        const [result] = await db.query('select * from user ORDER BY money desc limit 10')
+        const [result] = await db.query('select user_id, money from user ORDER BY money desc limit 10')
         return {status : 200, message : result};
     } catch (err) {
         logWithTime(err);

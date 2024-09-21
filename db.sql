@@ -1,3 +1,4 @@
+/* user 정보 테이블 */
 create table user (
 	account_id int auto_increment primary key,
 	user_id varchar(255) not null,
@@ -7,6 +8,7 @@ create table user (
 	create_at datetime DEFAULT now()
 );
 
+/* 상장된 주식 정보 테이블*/
 create table stock_inform (
 	stock_id int auto_increment primary key,
 	name varchar (20) not null, 
@@ -16,6 +18,7 @@ create table stock_inform (
 	broken_at datetime
 );
 
+/* 주식 잔고 테이블*/
 create table stock_user (
 	account_id int not null,
 	stock_id int not null,
@@ -24,6 +27,7 @@ create table stock_user (
 	PRIMARY KEY (account_id, stock_id)
 );
 
+/*주식 체결 기록 테이블*/
 create table stock_log (
 	account_id int not null,
 	stock_id int not null,
@@ -31,10 +35,14 @@ create table stock_log (
 	trading_type enum('sell','buy') not null,
 	trading_at datetime
 );
-/* user 정보 테이블 */
-/* 상장된 주식 정보 테이블*/
-/* 주식 잔고 테이블*/
-/*주식 체결 기록 테이블*/
+
+/*가격 변동 기록 테이블*/
+create table stock_pricelog (
+	stock_id int not null,
+	price int not null,
+	log_at datetime
+)
+
 /*
     주식기능
     1. 주식 가격확인 
@@ -44,9 +52,19 @@ create table stock_log (
     5. 이용자들 끼리 채팅 기능
     6.자산 랭킹
 */
+
+/* 로컬에서 최초실행시 필요한 데이터 */
+
 insert into stock_inform values(null, '문경테크놀로지', 45000, 'Y', now(), null);
 insert into stock_inform values(null, '은수에어로스페이스', 80000, 'Y', now(), null);
 insert into stock_inform values(null, '현우바이오', 60000, 'Y', now(), null);
 insert into stock_inform values(null, '은찬식품', 30000, 'Y', now(), null);
 insert into stock_inform values(null, '규빈메디컬', 40000, 'Y', now(), null);
 insert into stock_inform values(null, '기태스틸', 35000, 'Y', now(), null);
+
+insert into stock_pricelog values(1, 45000, now());
+insert into stock_pricelog values(2, 80000, now());
+insert into stock_pricelog values(3, 60000, now());
+insert into stock_pricelog values(4, 30000, now());
+insert into stock_pricelog values(5, 40000, now());
+insert into stock_pricelog values(6, 35000, now());
