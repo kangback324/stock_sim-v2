@@ -105,8 +105,22 @@ exports.sell = async (req, res) => {
     }
 }
 
+//주식 조회
+exports.stock_inform = async (req) => {
+    const db = await pool.getConnection();
+    try {
+        const [result] = await db.query('select * from stock_inform');
+        return { status : 200, message : result};
+    } catch (err) {
+        logWithTime(err)
+        return { status : 500, message : "500 (stock) internet server error"};
+    } finally {
+        db.release();
+    }
+}
+
 //체결로그 조회
-exports.log = async (req, res) => {
+exports.stock_log = async (req, res) => {
     const db = await pool.getConnection();
     try {
         //조회 결과는 30개로 제한함 
@@ -114,11 +128,52 @@ exports.log = async (req, res) => {
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err);
-        return { status: 500, message: "500 (log) internet server error" };
+        return { status: 500, message: "500 (Stock_log) internet server error" };
     } finally {
         await db.release();
     }
 }
+
+
+exports.stock_pricelog = async (req, res) => {
+    const db = await pool.getConnection();
+    try {
+        const [result] = await db.query('select * from stock_pricelog');
+        return { status: 200, message: result };
+    } catch (err) {
+        logWithTime(err)
+        return { status: 500, message: "500 (Pricelog) internet server error" };
+    } finally {
+        db.release();
+    }
+}
+
+exports.index_inform = async (req, res) => {
+    const db = await pool.getConnection();
+    try {
+        const [result] = await db.query('select * from index_inform');
+        return { status: 200, message: result };
+    } catch (err) {
+        logWithTime(err)
+        return { status: 500, message: "500 (Pricelog) internet server error" };
+    } finally {
+        db.release();
+    }
+}
+
+exports.index_pricelog = async (req, res) => {
+    const db = await pool.getConnection();
+    try {
+        const [result] = await db.query('select * from index_pricelog');
+        return { status: 200, message: result };
+    } catch (err) {
+        logWithTime(err)
+        return { status: 500, message: "500 (Pricelog) internet server error" };
+    } finally {
+        db.release();
+    }
+}
+
 
 //계좌 조회
 exports.my_account = async (req, res) => {
@@ -127,23 +182,23 @@ exports.my_account = async (req, res) => {
         try {
             const [user] = await db.query('select * from user where user_id = ?',[req.session.user_id]);
             const [result] = await db.query('SELECT si.name AS stock_name, su.stock_number, su.average_price FROM stock_user su INNER JOIN stock_inform si ON su.stock_id = si.stock_id where account_id = ?'
-            ,[user[0].account_id]);
-            return { status: 200, message: result };
-        } catch (err) {
-            logWithTime(err);
-            return { status: 500, message: "500 (my_account) internet server error" };
-
-        } finally {
-            await db.release();
+                ,[user[0].account_id]);
+                return { status: 200, message: result };
+            } catch (err) {
+                logWithTime(err);
+                return { status: 500, message: "500 (my_account) internet server error" };
+                
+            } finally {
+                await db.release();
+            }
+        }
+        else {
+            return { status : 400, message : "faild (No login User)" }
         }
     }
-    else {
-        return { status : 400, message : "faild (No login User)" }
-    }
-}
-
+    
 //랭킹 조회
-exports.rank = async (req) => {
+exports.user_rank = async (req) => {
     const db = await pool.getConnection();
     try {
         const [result] = await db.query('select user_id, money from user ORDER BY money desc limit 10')
@@ -151,20 +206,6 @@ exports.rank = async (req) => {
     } catch (err) {
         logWithTime(err);
         return { status : 500, message : "500 (rank) internet server error" }
-    } finally {
-        db.release();
-    }
-}
-
-//주식 조회
-exports.stock = async (req) => {
-    const db = await pool.getConnection();
-    try {
-        const [result] = await db.query('select * from stock_inform');
-        return { status : 200, message : result};
-    } catch (err) {
-        logWithTime(err)
-        return { status : 500, message : "500 (stock) internet server error"};
     } finally {
         db.release();
     }
