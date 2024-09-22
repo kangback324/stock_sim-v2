@@ -16,13 +16,20 @@ exports.log = async (req, res) => {
     res.status(result.status).json({ message: result.message });
 }
 
-//계좌 확인 모델
+//계좌 확인
 exports.my_account = async (req, res) => {
     const result = await Stockmodel.my_account(req);
     res.status(result.status).json({ message: result.message });
 };
 
+//랭크
 exports.rank = async (req, res) => {
     const result = await Stockmodel.rank(req);
+    res.status(result.status).json({ message: result.message });
+}
+
+//주식 조회
+exports.stock = async (req, res) => {
+    const result = await Stockmodel.stock(req);
     res.status(result.status).json({ message: result.message });
 }

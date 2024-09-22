@@ -142,6 +142,7 @@ exports.my_account = async (req, res) => {
     }
 }
 
+//랭킹 조회
 exports.rank = async (req) => {
     const db = await pool.getConnection();
     try {
@@ -150,6 +151,20 @@ exports.rank = async (req) => {
     } catch (err) {
         logWithTime(err);
         return { status : 500, message : "500 (rank) internet server error" }
+    } finally {
+        db.release();
+    }
+}
+
+//주식 조회
+exports.stock = async (req) => {
+    const db = await pool.getConnection();
+    try {
+        const [result] = await db.query('select * from stock_inform');
+        return { status : 200, message : result};
+    } catch (err) {
+        logWithTime(err)
+        return { status : 500, message : "500 (stock) internet server error"};
     } finally {
         db.release();
     }
