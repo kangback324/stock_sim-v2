@@ -8,8 +8,6 @@ const session = require('express-session');
 require('./lib/PriceUpdate.js')
 
 app.set('view engine', 'ejs');
-app.set('views', './views')
-
 app.use(express.urlencoded({ extended: true })); //x-www-form-urlencoded 방식, 그래서 객체 형태로 결과나옴
 app.use(express.json());
 app.use(session({
@@ -29,10 +27,6 @@ app.use(session({
 
 app.use('/', root_router);
 app.use('/stock', stock_router);
-
-app.get('/', (req, res) => {
-  res.render('index');
-});
 
 const PORT = 3000;
 app.listen(PORT, () => {
