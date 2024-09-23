@@ -3,7 +3,6 @@ const logWithTime = require('../lib/logger.js')
 const isowner = require('../lib/isowner.js')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt');
-const sendEmail = require('../lib/email_inform.js');
 const saltRounds = 10;  
 
 exports.signup = async (req, res) => {

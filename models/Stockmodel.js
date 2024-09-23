@@ -4,15 +4,14 @@ const pool = require('../lib/db.js');
 
 // 매수
 exports.buy = async (req) => {
-    if (await isowner(req)) {
+    // if (await isowner(req)) {
         const db = await pool.getConnection();
         try {
             const [stock_inform] = await db.query('select * from stock_inform where name = ?', [req.body.stock_name]);
             const [user] = await db.query('select * from user where user_id = ?',[req.session.user_id]);
             const [stock_user] = await db.query('select * from stock_user where account_id = ?',[user[0].account_id]);
-
             // 유효성 검사
-            if (stock_inform[0].status === 'N' || stock_inform[0].status === undefined) {
+            if (stock_inform.length === 0 || stock_inform[0].status === 'N') {
                 return { status: 400, message: "404 Not found stock" };
             }
             if (isNaN(Number(req.body.number)) || Number.isInteger(Number(req.body.number)) === false || Number(req.body.number) < 0) {
@@ -46,10 +45,10 @@ exports.buy = async (req) => {
         } finally {
             await db.release();
         }
-    }
-    else {
-        return { status: 400, message: "failed (No login User)" };
-    }
+    // }
+    // else {
+    //     return { status: 400, message: "failed (No login User)" };
+    // }
 }
 
 
@@ -105,6 +104,57 @@ exports.sell = async (req, res) => {
     }
 }
 
+/* MSCPI 지수전용으로 짜여있음 일반주식에 대한 선물거래를 만들면 수정해야됨 */
+/*
+    {
+        futures_name : 
+        contract :
+        leverage :
+    }
+    ex )
+        {
+        futures_name : MSCPI
+        contract : 3
+        leverage : 2.5
+    }
+*/
+exports.buy_futures = async (req, res) => {
+    if (await isowner(req)) {
+        const db = await pool.getConnection();
+        try {
+            const [futures] = await db.query('select * from futures_inform where name = ?',[req.body.futures_name]);
+            const [user] = await db.query('select * from user where user_id = ?',[req.session.user_id]);
+            const useing_money = (req.body.leverage * (futures[0].price * 1500)) * (10 / 100)
+            //구매할때 배율 X (구매시 지수 포인트 X 1500) 의 10%가 계좌에 돈이 있어야됨
+            if (user[0].price <  useing_money) {
+                return { status : 400, message : "faild (Not have money)" };
+            } 
+            if (user[0].price >= useing_money) {
+                //추매시 추매했을때 배율이 다른 계약이 들어올경우 같은 포지션이여도 다른 계약으로 취급
+                const [check] = await db.query('select * from where account_id = ? AND ')
+            }
+            else {
+                logWithTime("error : buy_futures");
+                logWithTime(req.body)
+            }
+        } catch (err) {
+            logWithTime(err)
+        } finally {
+            db.release();
+        }
+    } else {
+        return { status : 400, message : "faild (No login User)" }
+    }
+    //만약 배율이 같은 계약일 경우
+    //선물 만기일은 구매일로 부터 12시간 12시간이 지나면 자동청산
+    //수익률이 -100%가 되면 투자자 보호를 위해 강제 청산
+    //수익률 = ((구매한 당시의 지수 포인트) - (현재 지수 포인트)) * 1500 * 배율
+}
+
+exports.sell_futures = async (req, res) => {
+    
+}
+
 //주식 조회
 exports.stock_inform = async (req) => {
     const db = await pool.getConnection();
@@ -148,10 +198,10 @@ exports.stock_pricelog = async (req, res) => {
     }
 }
 
-exports.index_inform = async (req, res) => {
+exports.futures_inform = async (req, res) => {
     const db = await pool.getConnection();
     try {
-        const [result] = await db.query('select * from index_inform');
+        const [result] = await db.query('select * from futures_inform');
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err)
@@ -161,10 +211,10 @@ exports.index_inform = async (req, res) => {
     }
 }
 
-exports.index_pricelog = async (req, res) => {
+exports.futures_pricelog = async (req, res) => {
     const db = await pool.getConnection();
     try {
-        const [result] = await db.query('select * from index_pricelog');
+        const [result] = await db.query('select * from futures_pricelog');
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err)

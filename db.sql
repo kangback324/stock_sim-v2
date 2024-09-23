@@ -27,6 +27,16 @@ create table stock_user (
 	PRIMARY KEY (account_id, stock_id)
 );
 
+/* 선물 계좌 잔고 테이블 */
+CREATE TABLE futures_user (
+	account_id INT NOT NULL,
+	futures_id INT NOT NULL,
+	contract_number INT NOT NULL, 
+	average_price INT NOT NULL,
+	position ENUM('long', 'short') NOT NULL,
+	leverage DOUBLE NOT NULL
+);
+
 /*주식 체결 기록 테이블*/
 create table stock_log (
 	account_id int not null,
@@ -41,11 +51,11 @@ create table stock_pricelog (
 	stock_id int not null,
 	price int not null,
 	log_at datetime
-)
+);
 
-/*지수 테이블*/
-create table index_inform (
-	index_id int auto_increment primary key,
+/* 선물거래가 가능한거 정보 모아둔 테이블 */
+create table futures_inform (
+	futures_id int auto_increment primary key,
 	name varchar (20) not null, 
 	price double not null, 
 	status varchar(1) not null,
@@ -53,9 +63,9 @@ create table index_inform (
 	broken_at datetime
 );
 
-/*지수 가격변동 기록 테이블*/
-create table index_pricelog (
-	index_id int not null,
+/* 선물 가격변동 기록 테이블*/
+create table futures_pricelog (
+	futures_id int not null,
 	price double not null,
 	log_at datetime
 );
@@ -77,8 +87,8 @@ insert into stock_pricelog values(4, 30000, now());
 insert into stock_pricelog values(5, 40000, now());
 insert into stock_pricelog values(6, 35000, now());
 
-insert into index_inform values(1, 'MCSPI', 1500, 'Y', now(), null);
-insert into index_pricelog values(1, 1500, now());
+insert into futures_inform values(1, 'MCSPI', 1500, 'Y', now(), null);
+insert into futures_pricelog values(1, 1500, now());
 
 /* 리셋하기 */
 
