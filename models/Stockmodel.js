@@ -47,7 +47,7 @@ exports.buy = async (req) => {
 
 //매도
 exports.sell = async (req) => {
-    console.log("ㄴㅁㅇ")
+    console.log("ㄴㅁㅇ") // 니애미????
     const db = await pool.getConnection();
     try {
         // 유효성 검사

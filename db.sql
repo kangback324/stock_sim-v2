@@ -70,6 +70,11 @@ create table futures_pricelog (
 	log_at datetime
 );
 
+/* 채팅 내용 저장 테이블 */
+create table chat_log (
+	user_id varchar (255) not null,
+	content varchar (512) not null,
+);
 
 /* 로컬에서 최초실행시 필요한 데이터 */
 
