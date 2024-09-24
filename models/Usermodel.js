@@ -1,7 +1,6 @@
 const pool = require('../lib/db.js');
 const logWithTime = require('../lib/logger.js')
 const isowner = require('../lib/isowner.js')
-const mongoose = require('mongoose')
 const bcrypt = require('bcrypt');
 const saltRounds = 10;  
 
