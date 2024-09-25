@@ -66,7 +66,7 @@ exports.logout = async (req) => {
         }
     }
     else {
-        return { status: 400, message: "Not login" };
+        return { status: 400, message: "Need login" };
     }
 };
 
@@ -87,6 +87,6 @@ exports.isowner = async (req) => {
             db.release();
         }
     } else {
-        return { status: 400, message: "Not login" };
+        return { status: 400, message: "Need login" };
     }
 }

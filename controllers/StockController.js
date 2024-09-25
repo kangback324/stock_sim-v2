@@ -11,15 +11,6 @@ exports.sell = async (req, res) => {
     res.status(result.status).json({ message: result.message });
 }
 
-exports.buy_futures = async (req, res) => {
-    const result = await Stockmodel.buy_futures(req);
-    res.status(result.status).json({ message: result.message });
-}
-
-exports.sell_futures = async (req, res) => {
-    const result = await Stockmodel.sell_futures(req);
-    res.status(result.status).json({ message: result.message });
-}
 //주식 조회
 exports.stock_inform = async (req, res) => {
     const result = await Stockmodel.stock_inform(req);
@@ -38,16 +29,6 @@ exports.stock_pricelog = async (req, res) => {
     res.status(result.status).json({ message: result.message });
 }
 
-
-exports.futures_inform = async (req, res) => {
-    const result = await Stockmodel.futures_inform(req);
-    res.status(result.status).json({ message: result.message });
-}
-
-exports.futures_pricelog = async (req, res) => {
-    const result = await Stockmodel.futures_pricelog(req);
-    res.status(result.status).json({ message: result.message });
-}
 
 //계좌 확인
 exports.my_account = async (req, res) => {

@@ -32,9 +32,10 @@ CREATE TABLE futures_user (
 	account_id INT NOT NULL,
 	futures_id INT NOT NULL,
 	contract_number INT NOT NULL, 
-	average_price INT NOT NULL,
+	average_price double NOT NULL,
 	position ENUM('long', 'short') NOT NULL,
-	leverage DOUBLE NOT NULL
+	leverage DOUBLE NOT NULL,
+	at datetime not null
 );
 
 /*주식 체결 기록 테이블*/

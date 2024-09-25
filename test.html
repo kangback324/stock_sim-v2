@@ -1,23 +1,10 @@
-<!-- 테스트 용 EJS -->
-<!-- 테스트 용 EJS -->
-<!-- 테스트 용 EJS -->
-<!-- 테스트 용 EJS -->
-<!-- 테스트 용 EJS -->
-<!-- 테스트 용 EJS -->
-<!-- 테스트 용 EJS -->
-<!-- 테스트 용 EJS -->
-<!-- Commit Practice-->
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        .chat {
-            visibility: hidden;
-        }
         body {
             margin: 30px;
         }
@@ -35,26 +22,6 @@
     </style>
 </head>
 <body>
-    <h1>주식 시뮬레이터 V2</h1>
-    <p>백엔드</p>
-
-    <%-include('chat.ejs')%>    <!-- 채팅 호출 -->
-
-        <form action="/signup" method="post">
-            <input type="text" name="id" placeholder="id">
-            <input type="password" name="pw" placeholder="pw">
-            <input type="email" name="email" placeholder="email">
-            <input type="submit">
-        </form>
-        <form action="/login" method="post">
-            <input type="text" name="id">
-            <input type="password" name="pw">
-            <input type="submit">
-        </form>
-        <form action="/logout" method="post">
-            <input type="submit">
-        </form>
-        <button id="viewChat">채팅 보기</button>
     <table>
         <tr>
             <td>MCSPI</td>
@@ -109,7 +76,7 @@
 <script>
     let stock_data, index_data;
     const index_pice = document.getElementById('index_price');
-
+    
     async function req_backend(url) {
         try {
             const response = await fetch(`http://localhost:3000/${url}`);
@@ -119,12 +86,12 @@
             console.error(err);
         }
     }
-
+    
     async function fetchData() {
         stock_data = await req_backend("stock/stock-inform");
         index_data = await req_backend("stock/futures-inform");
         index_pice.innerText = index_data.message[0].price;
-        for (let i = 0; i < 6; i++) { 
+        for (let i = 0; i < 6; i++) { // i는 0부터 시작해야 함
             document.getElementById(`stock_id_${i + 1}`).innerText = stock_data.message[i].stock_id;
             document.getElementById(`name_${i + 1}`).innerText = stock_data.message[i].name;
             document.getElementById(`price_${i + 1}`).innerText = stock_data.message[i].price;
@@ -132,12 +99,7 @@
         }
     }
     fetchData();
-    setInterval(fetchData, 1000); 
-
-    document.getElementById('viewChat').addEventListener('click', () => {
-        const chatContainer = document.getElementById('chatContainer');
-        chatContainer.style.visibility = 'visible';
-    });
+    setInterval(fetchData, 1000); // 올바르게 함수 참조 전달
+    
 </script>
-
 </html>
