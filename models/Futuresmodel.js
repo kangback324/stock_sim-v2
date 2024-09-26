@@ -77,10 +77,16 @@ exports.sell_futures = async (req) => {
     }
 }
 
-exports.futures_inform = async () => {
+exports.futures_inform = async (req) => {
     const db = await pool.getConnection();
+    let result;
     try {
-        const [result] = await db.query('select * from futures_inform');
+        if (req.params.futures_id === "all") {
+            [result] = await db.query('select * from futures_inform');
+        }
+        else {
+            [result] = await db.query('select * from futures_inform where futures_id = ?',[req.params.futures_id]);
+        }
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err)
@@ -90,10 +96,14 @@ exports.futures_inform = async () => {
     }
 }
 
-exports.futures_pricelog = async () => {
+exports.futures_pricelog = async (req) => {
     const db = await pool.getConnection();
     try {
-        const [result] = await db.query('select * from futures_pricelog');
+        if (req.params.futures_id === "all") {
+            [result] = await db.query('select * from futures_pricelog');
+        } else {
+            [result] = await db.query('select * from futures_pricelog where futures_id = ?',[req.params.futures_id]);
+        }
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err)

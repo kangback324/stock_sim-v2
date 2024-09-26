@@ -92,10 +92,16 @@ exports.sell = async (req) => {
 }
 
 //주식 조회
-exports.stock_inform = async () => {
+exports.stock_inform = async (req) => {
     const db = await pool.getConnection();
+    let result;
     try {
-        const [result] = await db.query('select * from stock_inform');
+        if (req.params.stock_id === "all") {
+            [result] = await db.query('select * from stock_inform');
+        }
+        else {
+            [result] = await db.query('select * from stock_inform where stock_id = ?',[req.params.stock_id]);
+        }
         return { status : 200, message : result};
     } catch (err) {
         logWithTime(err)
@@ -121,11 +127,16 @@ exports.stock_log = async () => {
 }
 
 /* 어느 주식을 조회할것 인지 인자로 받아야됨  */
-exports.stock_pricelog = async () => {
+exports.stock_pricelog = async (req) => {
     const db = await pool.getConnection();
+    let result;
     try {
-        const [result] = await db.query('select * from stock_pricelog');
-        
+        if (req.params.stock_id === "all") {
+            [result] = await db.query('select * from stock_pricelog');
+        } else {
+
+            [result] = await db.query('select * from stock_pricelog where stock_id = ?',[req.params.stock_id]);
+        }
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err)

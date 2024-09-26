@@ -121,8 +121,8 @@
     }
 
     async function fetchData() {
-        stock_data = await req_backend("stock/stock-inform");
-        index_data = await req_backend("stock/futures-inform");
+        stock_data = await req_backend("stock/stock-inform/all");
+        index_data = await req_backend("stock/futures-inform/all");
         index_pice.innerText = index_data.message[0].price;
         for (let i = 0; i < 6; i++) { 
             document.getElementById(`stock_id_${i + 1}`).innerText = stock_data.message[i].stock_id;

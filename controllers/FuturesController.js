@@ -6,6 +6,9 @@ exports.futures_inform = async (req, res) => {
 }
 
 exports.futures_pricelog = async (req, res) => {
+    if (!req.params.futures_id) {
+        res.status(400).json({ message: "Bad Requset" });
+    }
     const result = await Futuresmodel.futures_pricelog(req);
     res.status(result.status).json({ message: result.message });
 }

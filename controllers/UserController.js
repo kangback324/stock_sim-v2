@@ -1,6 +1,4 @@
 const Usermodel = require('../models/Usermodel.js');
-const logWithTime = require('../lib/logger.js')
-const isowner = require('../lib/isowner.js');
 
 exports.signup = async (req, res) => {
   const result = await Usermodel.signup(req);

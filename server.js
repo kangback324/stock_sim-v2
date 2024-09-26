@@ -38,7 +38,13 @@ app.get('/', (req, res) => {
 
 app.use((req, res)=>{
   res.status(404).send("404 Not Found");
-})
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: "Something went wrong!" }); // 에러 응답
+});
+
 
 const PORT = 3000;
 app.listen(PORT, () => {
