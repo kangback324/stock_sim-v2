@@ -26,7 +26,7 @@ exports.stock_log = async (req, res) => {
 //주식 가격 변동
 exports.stock_pricelog = async (req, res) => {
     if (!req.params.stock_id) {
-        res.status(400).json({ message: "Bad Requset" });
+        return res.status(400).json({ message: "Bad Requset" });
     }
     const result = await Stockmodel.stock_pricelog(req);
     res.status(result.status).json({ message: result.message });
