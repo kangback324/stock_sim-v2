@@ -12,13 +12,13 @@ exports.buy = async (req) => {
         const [stock_user] = await db.query('select * from stock_user where account_id = ?',[user[0].account_id]);
         // 유효성 검사
         if (stock_inform.length === 0 || stock_inform[0].status === 'N') {
-            return { status: 400, message: "404 Not found stock" };
+            return { status: 400, message: "Not found stock" };
         }
         if (isNaN(Number(req.body.number)) || Number.isInteger(Number(req.body.number)) === false || Number(req.body.number) < 0) {
-            return { status: 400, message: "400 wrong number" };
+            return { status: 400, message: "wrong number" };
         }
         if (user[0].money < stock_inform[0].price * req.body.number) {
-            return { status: 400, message: "400 Not enough money" };
+            return { status: 400, message: "Not enough money" };
         }
         //로그 남기기
         await db.query('insert into stock_log values(?, ?, ?, "buy", now())',[user[0].account_id,stock_inform[0].stock_id,req.body.number]);
@@ -36,11 +36,11 @@ exports.buy = async (req) => {
             await db.query('insert into stock_user values(?, ?, ?, ?)',[user[0].account_id, stock_inform[0].stock_id, req.body.number, stock_inform[0].price]);
         }
         await db.commit();
-        return { status: 200, message: "200 success !" };     
+        return { status: 200, message: "success" };     
     } catch (err) {
         logWithTime(err);
         await db.rollback();
-        return { status: 500, message: "500 (buy) internet server error" };
+        return { status: 500, message: "internet server error" };
     } finally {
         db.release();
     }
@@ -56,19 +56,19 @@ exports.sell = async (req) => {
         const [user] = await db.query('select account_id, money from user where user_id = ?', [req.session.user_id]);
         const [stock] = await db.query('select stock_id, status, price from stock_inform where name = ?',[req.body.stock_name]);
         if (stock.length === 0 || stock[0].status === 'N') {
-            return { status: 400, message: "404 Not found stock" };
+            return { status: 400, message: "Not found stock" };
         }
         if (isNaN(Number(req.body.number)) || Number.isInteger(Number(req.body.number)) === false || Number(req.body.number) < 0) {
-            return { status: 400, message: "400 wrong number" };
+            return { status: 400, message: "wrong number" };
         }
         //뭐 샀는지 조회
         const [stock_user] = await db.query('select stock_number from stock_user where account_id = ? AND stock_id = ?',[user[0].account_id, stock[0].stock_id]);
         if (stock_user[0] === undefined) {
-            return { status: 400, message: "400 Not have" };
+            return { status: 400, message: "Not have" };
         }
         const new_number = stock_user[0].stock_number - req.body.number;
         if (new_number < 0) {
-                return { status: 400, message: "400 wrong number" };
+                return { status: 400, message: "wrong number" };
         }
         //로그 남기기
         await db.query('insert into stock_log values(?, ?, ?, "sell", now())',[user[0].account_id,stock[0].stock_id,req.body.number]);
@@ -81,11 +81,11 @@ exports.sell = async (req) => {
         //돈주기, (수수료 로직 추가하기)
         await db.query('update user set money = ? where account_id = ?',[user[0].money + (stock[0].price * req.body.number) ,user[0].account_id]);
         await db.commit();
-        return { status: 200, message: "200 Success !" };
+        return { status: 200, message: "success !" };
     } catch (err) {
         logWithTime(err);
         await db.rollback();
-        return { status: 500, message: "500 (sell) internet server error" };
+        return { status: 500, message: "internet server error" };
     } finally {
         db.release();
     }
@@ -105,7 +105,7 @@ exports.stock_inform = async (req) => {
         return { status : 200, message : result};
     } catch (err) {
         logWithTime(err)
-        return { status : 500, message : "500 (stock) internet server error"};
+        return { status : 500, message : "internet server error"};
     } finally {
         db.release();
     }
@@ -120,7 +120,7 @@ exports.stock_log = async () => {
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err);
-        return { status: 500, message: "500 (Stock_log) internet server error" };
+        return { status: 500, message: "internet server error" };
     } finally {
         await db.release();
     }
@@ -134,13 +134,12 @@ exports.stock_pricelog = async (req) => {
         if (req.params.stock_id === "all") {
             [result] = await db.query('select * from stock_pricelog');
         } else {
-
             [result] = await db.query('select * from stock_pricelog where stock_id = ?',[req.params.stock_id]);
         }
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err)
-        return { status: 500, message: "500 (Pricelog) internet server error" };
+        return { status: 500, message: "internet server error" };
     } finally {
         db.release();
     }
@@ -157,7 +156,7 @@ exports.my_account = async (req) => {
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err);
-        return { status: 500, message: "500 (my_account) internet server error" };
+        return { status: 500, message: "internet server error" };
         
     } finally {
         await db.release();
@@ -172,7 +171,7 @@ exports.user_rank = async () => {
         return {status : 200, message : result};
     } catch (err) {
         logWithTime(err);
-        return { status : 500, message : "500 (rank) internet server error" }
+        return { status : 500, message : "internet server error" }
     } finally {
         db.release();
     }

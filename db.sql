@@ -74,7 +74,7 @@ create table futures_pricelog (
 /* 채팅 내용 저장 테이블 */
 create table chat_log (
 	user_id varchar (255) not null,
-	content varchar (512) not null,
+	content varchar (512) not null
 );
 
 /* 로컬에서 최초실행시 필요한 데이터 */
@@ -85,6 +85,7 @@ insert into stock_inform values(null, '현우바이오', 60000, 'Y', now(), null
 insert into stock_inform values(null, '은찬식품', 30000, 'Y', now(), null);
 insert into stock_inform values(null, '규빈메디컬', 40000, 'Y', now(), null);
 insert into stock_inform values(null, '기태스틸', 35000, 'Y', now(), null);
+insert into stock_inform values(null, '백호포장', 35000, 'Y', now(), null);
 
 insert into stock_pricelog values(1, 45000, now());
 insert into stock_pricelog values(2, 80000, now());
@@ -97,8 +98,11 @@ insert into futures_inform values(1, 'MCSPI', 1500, 'Y', now(), null);
 insert into futures_pricelog values(1, 1500, now());
 
 /* 리셋하기 */
-
+ 
+delete from futures_inform;
+delete from futures_pricelog;
+delete from futures_user;
 delete from stock_inform;
+delete from stock_log;
 delete from stock_pricelog;
-delete from index_inform;
-delete from index_pricelog;
+delete from stock_user;

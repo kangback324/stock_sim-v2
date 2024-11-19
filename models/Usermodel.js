@@ -9,17 +9,17 @@ exports.signup = async (req, res) => {
     try {
         const [double_id] = await db.query('select * from user where user_id=?',[req.body.id]);
         if (double_id.length > 0) {
-            return { status: 400, message : "400 doubleduplicate ID" }
+            return { status: 400, message : "doubleduplicate ID" }
         }   
         else {
             const hashedPassword = await bcrypt.hash(req.body.pw, saltRounds);
             await db.query('insert into user (user_id, password, money, email) values(?,?,?,?)',[req.body.id, hashedPassword, 1000000, req.body.email]);
             logWithTime(`Server: A user named ${req.body.id} has been created successfully`)
-            return { status: 200, message: "200 signup success" };
+            return { status: 200, message: "success" };
         }
     } catch (err) {
         logWithTime(err);
-        return { status : 500, message : "500 (signup) internet server error" };
+        return { status : 500, message : "internet server error" };
     } finally {
         db.release();
     }
@@ -34,17 +34,17 @@ exports.login = async (req) => {
             if (passwordMatch) { // 비번일치하는지 확인
                 req.session.user_id = req.body.id;
                 logWithTime(`Server: A user named ${req.body.id} has logged in successfully`)
-                return { status: 200, message: "200 login success" };
+                return { status: 200, message: "success" };
             } else {
                 logWithTime(`Server: A user named ${req.body.id} has logged in failed`)
-                return { status: 400, message: "400 not match login failed" };
+                return { status: 400, message: "not match login failed" };
             }
         } else {
-            return { status: 400, message: "400 not match login failed" };
+            return { status: 400, message: "not match login failed" };
         }
     } catch (err) {
         logWithTime(err);
-        return { status: 500, message: "500 (login) internet server error" };
+        return { status: 500, message: "internet server error" };
     } finally {
         db.release();
     }
@@ -56,11 +56,11 @@ exports.logout = async (req) => {
         try {
             logWithTime(`Server: A user named ${req.session.user_id} has logged out successfully`)
             delete req.session.user_id;
-            return { status: 200, message: "200 logout success" };
+            return { status: 200, message: "success" };
         } catch (err) {
             logWithTime(err);
             logWithTime(`Server: A user named ${req.session.user_id} has logged out failed`)
-            return { status: 500, message: "500 (login) internet server error" };
+            return { status: 500, message: "internet server error" };
         } finally {
             db.release();
         }
@@ -82,7 +82,7 @@ exports.isowner = async (req) => {
             return { status: 200, message: result };
         } catch (err) {
             logWithTime(err);
-            return { status: 500, message: "500 (isowner) internet server error" };
+            return { status: 500, message: "internet server error" };
         } finally {
             db.release();
         }
