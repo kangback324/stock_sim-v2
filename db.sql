@@ -106,3 +106,16 @@ delete from stock_inform;
 delete from stock_log;
 delete from stock_pricelog;
 delete from stock_user;
+
+SELECT 
+    stock_id,
+    DATE_FORMAT(log_at, '%Y-%m-%d %H:%i') AS minute,
+    MIN(price) AS low,
+    MAX(price) AS high,
+    SUBSTRING_INDEX(GROUP_CONCAT(price ORDER BY log_at ASC), ',', 1) AS open,
+    SUBSTRING_INDEX(GROUP_CONCAT(price ORDER BY log_at DESC), ',', 1) AS close
+FROM stock_pricelog
+WHERE stock_id = 20
+--   AND log_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+GROUP BY stock_id, minute
+ORDER BY minute;

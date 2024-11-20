@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candle Chart</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Candle Chart</h1>
+    <div id="controls">
+        <button onclick="adjustCandleSize(5)">작게</button>
+        <button onclick="adjustCandleSize(10)">보통</button>
+        <button onclick="adjustCandleSize(20)">크게</button>
+    </div>
+    <div id="chartContainer" style="overflow-x: auto; white-space: nowrap; width: 1500px; height: 600px;">
+        <canvas id="candleChart" style="display: block;"></canvas>
+    </div>
+     
+    <script src="chart.js"></script>
+</body>
+</html>

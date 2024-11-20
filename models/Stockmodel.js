@@ -3,6 +3,8 @@ const logWithTime = require('../lib/logger.js')
 const pool = require('../lib/db.js');
 
 // 매수
+//stock_name
+//number
 exports.buy = async (req) => {
     const db = await pool.getConnection();
     try {
@@ -21,7 +23,7 @@ exports.buy = async (req) => {
             return { status: 400, message: "Not enough money" };
         }
         //로그 남기기
-        await db.query('insert into stock_log values(?, ?, ?, "buy", now())',[user[0].account_id,stock_inform[0].stock_id,req.body.number]);
+        await db.query('insert into stock_log values(?, ?, ?, "buy", now(), ?)',[user[0].account_id,stock_inform[0].stock_id,req.body.number, stock_inform[0].price]);
 
         //돈 줄이기 , (수수료 로직 추가 하기)
         await db.query('update user set money = ? where account_id = ?',[user[0].money - (stock_inform[0].price * req.body.number), user[0].account_id]);
@@ -71,7 +73,7 @@ exports.sell = async (req) => {
                 return { status: 400, message: "wrong number" };
         }
         //로그 남기기
-        await db.query('insert into stock_log values(?, ?, ?, "sell", now())',[user[0].account_id,stock[0].stock_id,req.body.number]);
+        await db.query('insert into stock_log values(?, ?, ?, "sell", now(), ?)',[user[0].account_id,stock[0].stock_id,req.body.number, stock[0].price]);
         //주식 제거하기
         if (stock_user[0].stock_number - req.body.number === 0) {
             await db.query('delete from stock_user where account_id = ? AND stock_id = ?',[user[0].account_id, stock[0].stock_id]);
@@ -112,11 +114,11 @@ exports.stock_inform = async (req) => {
 }
 
 //체결로그 조회
-exports.stock_log = async () => {
+exports.stock_log = async (req) => {
     const db = await pool.getConnection();
     try {
         //조회 결과는 30개로 제한함 
-        const [result] = await db.query('SELECT si.name AS stock_name, sl.stock_number, sl.trading_type, sl.trading_at FROM stock_log sl INNER JOIN stock_inform si ON sl.stock_id = si.stock_id ORDER BY trading_at desc limit 30');
+        const [result] = await db.query('SELECT si.name AS stock_name, sl.stock_number, sl.trading_type, sl.price, sl.trading_at FROM stock_log sl INNER JOIN stock_inform si ON sl.stock_id = si.stock_id where sl.stock_id = ? ORDER BY trading_at desc limit 30', [req.params.stock_id]);
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err);
@@ -131,11 +133,20 @@ exports.stock_pricelog = async (req) => {
     const db = await pool.getConnection();
     let result;
     try {
-        if (req.params.stock_id === "all") {
-            [result] = await db.query('select * from stock_pricelog');
-        } else {
-            [result] = await db.query('select * from stock_pricelog where stock_id = ?',[req.params.stock_id]);
-        }
+        [result] = await db.query(`
+            SELECT 
+                stock_id,
+                DATE_FORMAT(log_at, '%Y-%m-%d %H:%i') AS minute,
+                MIN(price) AS low,
+                MAX(price) AS high,
+                SUBSTRING_INDEX(GROUP_CONCAT(price ORDER BY log_at ASC), ',', 1) AS open,
+                SUBSTRING_INDEX(GROUP_CONCAT(price ORDER BY log_at DESC), ',', 1) AS close
+            FROM stock_pricelog
+            WHERE stock_id = ?
+            --   AND log_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
+            GROUP BY stock_id, minute
+            ORDER BY minute
+`,[req.params.stock_id]);
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err)
@@ -153,7 +164,11 @@ exports.my_account = async (req) => {
     const [user] = await db.query('select * from user where user_id = ?',[req.session.user_id]);
     const [result] = await db.query('SELECT si.name AS stock_name, su.stock_number, su.average_price FROM stock_user su INNER JOIN stock_inform si ON su.stock_id = si.stock_id where account_id = ?'
         ,[user[0].account_id]);
-        return { status: 200, message: result };
+        return {
+            status: 200, message: {
+            money : user[0].money,
+            stock : result
+         }};
     } catch (err) {
         logWithTime(err);
         return { status: 500, message: "internet server error" };
