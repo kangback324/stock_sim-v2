@@ -7,6 +7,7 @@ const stock_router = require('./routes/stock.js');
 const session = require('express-session');
 const cors = require('cors')
 const pretty = require('./lib/prettyrespone.js')
+const path = require('path');
 require('./lib/PriceUpdate.js')
 
 app.use(cors());
@@ -26,6 +27,10 @@ app.use(session({
 
 app.use('/', root_router);
 app.use('/stock', stock_router);
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'chart.html'));
+});
 
 app.use((req, res)=>{
   pretty(404, req, res, "Not Found")

@@ -17,6 +17,7 @@
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "http": "^0.0.1-security",
+    "localtunnel": "^2.0.2",
     "mysql2": "^3.11.0",
     "nodemailer": "^6.9.15",
     "nodemon": "^3.1.4",

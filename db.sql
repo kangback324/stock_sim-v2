@@ -12,7 +12,7 @@ create table user (
 create table stock_inform (
 	stock_id int auto_increment primary key,
 	name varchar (20) not null, 
-	price int not null, 
+	price BIGINT not null, 
 	status varchar(1) not null,
 	create_at datetime DEFAULT now(),
 	broken_at datetime
@@ -22,8 +22,8 @@ create table stock_inform (
 create table stock_user (
 	account_id int not null,
 	stock_id int not null,
-	stock_number int not null, 
-	average_price int not null,
+	stock_number BIGINT not null, 
+	average_price BIGINT not null,
 	PRIMARY KEY (account_id, stock_id)
 );
 
@@ -31,7 +31,7 @@ create table stock_user (
 CREATE TABLE futures_user (
 	account_id INT NOT NULL,
 	futures_id INT NOT NULL,
-	contract_number INT NOT NULL, 
+	contract_number BIGINT NOT NULL, 
 	average_price double NOT NULL,
 	position ENUM('long', 'short') NOT NULL,
 	leverage DOUBLE NOT NULL,
@@ -42,7 +42,8 @@ CREATE TABLE futures_user (
 create table stock_log (
 	account_id int not null,
 	stock_id int not null,
-	stock_number int not null,
+	stock_number BIGINT not null,
+	price BIGINT not null,
 	trading_type enum('sell','buy') not null,
 	trading_at datetime
 );
@@ -50,7 +51,7 @@ create table stock_log (
 /*주식 가격 변동 기록 테이블*/
 create table stock_pricelog (
 	stock_id int not null,
-	price int not null,
+	price BIGINT not null,
 	log_at datetime
 );
 
@@ -83,10 +84,11 @@ create table chat_log (
 
 drop table stock_inform;
 
+
 create table stock_inform (
 	stock_id int auto_increment primary key,
 	name varchar (20) not null, 
-	price int not null, 
+	price BIGINT not null, 
 	status varchar(1) not null,
 	create_at datetime DEFAULT now(),
 	broken_at datetime
@@ -108,7 +110,8 @@ insert into stock_inform values(null, '현우바이오', 60000, 'Y', now(), null
 insert into stock_inform values(null, '은찬식품', 30000, 'Y', now(), null);
 insert into stock_inform values(null, '규빈메디컬', 40000, 'Y', now(), null);
 insert into stock_inform values(null, '기태스틸', 35000, 'Y', now(), null);
-insert into stock_inform values(null, '백호포장', 35000, 'Y', now(), null);
+insert into stock_inform values(null, '백호포장', 15000, 'Y', now(), null);
+insert into stock_inform values(null, '태양블록체인', 10200, 'Y', now(), null);
 
 insert into stock_pricelog values(1, 45000, now());
 insert into stock_pricelog values(2, 80000, now());
@@ -116,6 +119,8 @@ insert into stock_pricelog values(3, 60000, now());
 insert into stock_pricelog values(4, 30000, now());
 insert into stock_pricelog values(5, 40000, now());
 insert into stock_pricelog values(6, 35000, now());
+insert into stock_pricelog values(7, 15000, now());
+insert into stock_pricelog values(8, 10200, now());
 
 insert into futures_inform values(1, 'MCSPI', 1500, 'Y', now(), null);
 insert into futures_pricelog values(1, 1500, now());
