@@ -128,7 +128,7 @@ exports.stock_log = async (req) => {
     }
 }
 
-/* 어느 주식을 조회할것 인지 인자로 받아야됨  */
+//tiem 인자가 추가됨 요청시 /30, /60 과 같이 값을 넣고 요청해야됨 단위는 초
 exports.stock_pricelog = async (req) => {
     const db = await pool.getConnection();
     let result;
@@ -136,25 +136,25 @@ exports.stock_pricelog = async (req) => {
         [result] = await db.query(`
             SELECT 
                 stock_id,
-                DATE_FORMAT(log_at, '%Y-%m-%d %H:%i') AS minute,
+                DATE_FORMAT(log_at, '%Y-%m-%d %H:%i:00') + INTERVAL FLOOR(SECOND(log_at) / ?) * ? SECOND AS minute,
                 MIN(price) AS low,
                 MAX(price) AS high,
                 SUBSTRING_INDEX(GROUP_CONCAT(price ORDER BY log_at ASC), ',', 1) AS open,
                 SUBSTRING_INDEX(GROUP_CONCAT(price ORDER BY log_at DESC), ',', 1) AS close
             FROM stock_pricelog
             WHERE stock_id = ?
-            --   AND log_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
             GROUP BY stock_id, minute
             ORDER BY minute
-`,[req.params.stock_id]);
+        `, [req.params.time, req.params.time ,req.params.stock_id]);
         return { status: 200, message: result };
     } catch (err) {
-        logWithTime(err)
-        return { status: 500, message: "internet server error" };
+        logWithTime(err);
+        return { status: 500, message: "internal server error" };
     } finally {
         db.release();
     }
-}
+};
+
 
 
 //계좌 조회
