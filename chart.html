@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,9 +9,11 @@
         .big {
             font-size: 25px;
         }
+
         .number-buttons {
             margin-bottom: 10px;
         }
+
         .number-buttons button {
             font-size: 20px;
             margin: 5px;
@@ -18,21 +21,21 @@
         }
     </style>
 </head>
+
 <body>
     <h1 id="price">주식이름</h1>
     <p id="name">이름</p>
     <p class="big">상장대비 <span id="create_before"></span> %</p>
     <p class="big">전봉대비 <span id="bong_before"></span> %</p>
     <p></p>
-
-
-        <button onclick="updateApiUrl(1)">1</button>
-        <button onclick="updateApiUrl(2)">2</button>
-        <button onclick="updateApiUrl(3)">3</button>
-        <button onclick="updateApiUrl(4)">4</button>
-        <button onclick="updateApiUrl(5)">5</button>
-        <button onclick="updateApiUrl(6)">6</button>
-        <button onclick="updateApiUrl(7)">7</button>
+    <button onclick="updateApiUrl(1)">1</button>
+    <button onclick="updateApiUrl(2)">2</button>
+    <button onclick="updateApiUrl(3)">3</button>
+    <button onclick="updateApiUrl(4)">4</button>
+    <button onclick="updateApiUrl(5)">5</button>
+    <button onclick="updateApiUrl(6)">6</button>
+    <button onclick="updateApiUrl(7)">7</button>
+    <button onclick="updateApiUrl(8)">8</button>
 
     <div id="chartContainer" style="white-space: nowrap; width: 1000px; height: 1000px;">
         <canvas id="candleChart" style="display: block;"></canvas>
@@ -40,211 +43,216 @@
 </body>
 <script>
     const container = document.getElementById("chartContainer");
-const canvas = document.getElementById("candleChart");
-const ctx = canvas.getContext("2d");
+    const canvas = document.getElementById("candleChart");
+    const ctx = canvas.getContext("2d");
 
-// let apiUrl = "http://localhost:3000/stock/futures-pricelog/1";
-let apiUrl = "/stock/stock-pricelog/8";
+    // let apiUrl = "http://localhost:3000/stock/futures-pricelog/1";
+    let apiUrl = "/stock/stock-pricelog/8";
 
-let chartData = [];
-let candleWidth = 10;
-let candleSpacing = 5;
-const padding = 60;
+    let chartData = [];
+    let candleWidth = 10;
+    let candleSpacing = 5;
+    const padding = 60;
 
-// 줌 및 드래그 관련 변수
-let scale = 1; // 기본 확대/축소 비율
-let offsetX = 0; // 드래그에 따른 x축 오프셋
-let isDragging = false; // 드래그 상태
-let startDragX = 0;
+    // 줌 및 드래그 관련 변수
+    let scale = 1; // 기본 확대/축소 비율
+    let offsetX = 0; // 드래그에 따른 x축 오프셋
+    let isDragging = false; // 드래그 상태
+    let startDragX = 0;
 
-// 서버에서 데이터 가져오기
-async function fetchData() {
-    try {
-        const response = await fetch(apiUrl);
-        const result = await response.json();
+    function updateApiUrl(number) {
+        apiUrl = `/stock/stock-pricelog/${number}`;
+    }
 
-        if (response.ok) {
-            chartData = result.data.map(item => ({
-                minute: item.minute,
-                low: item.low,
-                high: item.high,
-                open: parseInt(item.open),
-                close: parseInt(item.close)
-            }));
+    // 서버에서 데이터 가져오기
+    async function fetchData() {
+        try {
+            const response = await fetch(apiUrl);
+            const result = await response.json();
 
-            document.getElementById('create_before').innerText = (((result.data[result.data.length - 1].close - result.data[0].open) / result.data[0].open) * 100).toFixed(1);
-            document.getElementById('bong_before').innerText = (((result.data[result.data.length - 1].close - result.data[result.data.length - 2].close) / result.data[result.data.length - 2].close) * 100).toFixed(1);
-            document.getElementById('price').innerText = result.data[result.data.length - 1].close;
+            if (response.ok) {
+                chartData = result.data.map(item => ({
+                    minute: item.minute,
+                    low: item.low,
+                    high: item.high,
+                    open: parseInt(item.open),
+                    close: parseInt(item.close)
+                }));
 
-            updateCanvasSize();
-            drawChart();
-        } else {
-            console.error("Failed to fetch data:", result);
+                document.getElementById('create_before').innerText = (((result.data[result.data.length - 1].close - result.data[0].open) / result.data[0].open) * 100).toFixed(1);
+                document.getElementById('bong_before').innerText = (((result.data[result.data.length - 1].close - result.data[result.data.length - 2].close) / result.data[result.data.length - 2].close) * 100).toFixed(1);
+                document.getElementById('price').innerText = result.data[result.data.length - 1].close;
+
+                updateCanvasSize();
+                drawChart();
+            } else {
+                console.error("Failed to fetch data:", result);
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
         }
-    } catch (error) {
-        console.error("Error fetching data:", error);
-    }
-}
-
-// 캔버스 크기 업데이트
-function updateCanvasSize() {
-    const totalCandles = chartData.length;
-    const minCanvasWidth = 300; // 최소 캔버스 너비
-    const canvasWidth = Math.max(minCanvasWidth, totalCandles * (candleWidth + candleSpacing) * scale + padding * 5);
-
-    canvas.width = canvasWidth; // 캔버스 너비 동적 설정
-    canvas.height = container.offsetHeight; // 높이는 container 크기에 맞춤
-}
-
-// 캔들차트 그리기
-function drawChart() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const chartWidth = canvas.width - padding * 2;
-    const chartHeight = canvas.height - padding * 2;
-
-    const maxPrice = Math.max(...chartData.map(d => d.high)) * 1.1;
-    const minPrice = Math.min(...chartData.map(d => d.low)) * 0.9;
-
-    const range = maxPrice - minPrice;
-    const scaleY = value => chartHeight * (1 - (value - minPrice) / range) + padding;
-
-    // Y축 그리기
-    ctx.beginPath();
-    ctx.strokeStyle = "black";
-    ctx.lineWidth = 1;
-    ctx.moveTo(padding, padding);
-    ctx.lineTo(padding, canvas.height - padding);
-    ctx.stroke();
-
-    const steps = 10;
-    const unit = range / steps;
-
-    for (let i = 0; i <= steps; i++) {
-        const price = minPrice + unit * i;
-        const y = scaleY(price);
-
-        ctx.fillStyle = "black";
-        ctx.textAlign = "right";
-        ctx.fillText(`${Math.round(price).toLocaleString()}원`, padding - 10, y + 5);
-
-        ctx.beginPath();
-        ctx.strokeStyle = "#e0e0e0";
-        ctx.moveTo(padding, y);
-        ctx.lineTo(canvas.width - padding, y);
-        ctx.stroke();
     }
 
-    // 최고가와 최저가 계산
-    const highestPoint = chartData.reduce((max, data) => (data.high > max.high ? data : max), chartData[0]);
-    const lowestPoint = chartData.reduce((min, data) => (data.low < min.low ? data : min), chartData[0]);
-
-    ctx.save();
-    ctx.translate(offsetX, 0); // 드래그에 따른 X축 이동
-
-    chartData.forEach((data, index) => {
+    // 캔버스 크기 업데이트
+    function updateCanvasSize() {
         const totalCandles = chartData.length;
-        const xBase = totalCandles === 1 
-            ? (canvas.width - padding * 2) / 2 // 봉이 하나면 중앙 정렬
-            : padding + index * (candleWidth + candleSpacing) * scale;
+        const minCanvasWidth = 300; // 최소 캔버스 너비
+        const canvasWidth = Math.max(minCanvasWidth, totalCandles * (candleWidth + candleSpacing) * scale + padding * 5);
 
-        const x = xBase + candleWidth / 2;
-        const yHigh = scaleY(data.high);
-        const yLow = scaleY(data.low);
-        const yOpen = scaleY(data.open);
-        const yClose = scaleY(data.close);
+        canvas.width = canvasWidth; // 캔버스 너비 동적 설정
+        canvas.height = container.offsetHeight; // 높이는 container 크기에 맞춤
+    }
 
-        // 고가와 저가 라인
+    // 캔들차트 그리기
+    function drawChart() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const chartWidth = canvas.width - padding * 2;
+        const chartHeight = canvas.height - padding * 2;
+
+        const maxPrice = Math.max(...chartData.map(d => d.high)) * 1.1;
+        const minPrice = Math.min(...chartData.map(d => d.low)) * 0.9;
+
+        const range = maxPrice - minPrice;
+        const scaleY = value => chartHeight * (1 - (value - minPrice) / range) + padding;
+
+        // Y축 그리기
         ctx.beginPath();
-        ctx.moveTo(x, yHigh);
-        ctx.lineTo(x, yLow);
         ctx.strokeStyle = "black";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, canvas.height - padding);
         ctx.stroke();
 
-        // 캔들 바디
-        const bodyHeight = Math.abs(yOpen - yClose);
-        const isUp = data.close > data.open;
-        ctx.fillStyle = isUp ? "red" : "blue";
-        ctx.fillRect(
-            x - (candleWidth / 2) * scale,
-            Math.min(yOpen, yClose),
-            candleWidth * scale,
-            Math.max(bodyHeight, 10) // 최소 높이 설정
-        );
+        const steps = 10;
+        const unit = range / steps;
 
-        // 신고가 표시
-        if (data === highestPoint) {
-            ctx.fillStyle = "green";
-            ctx.font = "12px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(
-                `🔺 ${Math.round(data.high).toLocaleString()}원 (${data.minute})`,
-                x,
-                yHigh - 10
-            );
+        for (let i = 0; i <= steps; i++) {
+            const price = minPrice + unit * i;
+            const y = scaleY(price);
+
+            ctx.fillStyle = "black";
+            ctx.textAlign = "right";
+            ctx.fillText(`${Math.round(price).toLocaleString()}원`, padding - 10, y + 5);
+
+            ctx.beginPath();
+            ctx.strokeStyle = "#e0e0e0";
+            ctx.moveTo(padding, y);
+            ctx.lineTo(canvas.width - padding, y);
+            ctx.stroke();
         }
 
-        // 신저가 표시
-        if (data === lowestPoint) {
-            ctx.fillStyle = "blue";
-            ctx.font = "12px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText(
-                `🔻 ${Math.round(data.low).toLocaleString()}원 (${data.minute})`,
-                x,
-                yLow + 20
+        // 최고가와 최저가 계산
+        const highestPoint = chartData.reduce((max, data) => (data.high > max.high ? data : max), chartData[0]);
+        const lowestPoint = chartData.reduce((min, data) => (data.low < min.low ? data : min), chartData[0]);
+
+        ctx.save();
+        ctx.translate(offsetX, 0); // 드래그에 따른 X축 이동
+
+        chartData.forEach((data, index) => {
+            const totalCandles = chartData.length;
+            const xBase = totalCandles === 1
+                ? (canvas.width - padding * 2) / 2 // 봉이 하나면 중앙 정렬
+                : padding + index * (candleWidth + candleSpacing) * scale;
+
+            const x = xBase + candleWidth / 2;
+            const yHigh = scaleY(data.high);
+            const yLow = scaleY(data.low);
+            const yOpen = scaleY(data.open);
+            const yClose = scaleY(data.close);
+
+            // 고가와 저가 라인
+            ctx.beginPath();
+            ctx.moveTo(x, yHigh);
+            ctx.lineTo(x, yLow);
+            ctx.strokeStyle = "black";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 캔들 바디
+            const bodyHeight = Math.abs(yOpen - yClose);
+            const isUp = data.close > data.open;
+            ctx.fillStyle = isUp ? "red" : "blue";
+            ctx.fillRect(
+                x - (candleWidth / 2) * scale,
+                Math.min(yOpen, yClose),
+                candleWidth * scale,
+                Math.max(bodyHeight, 10) // 최소 높이 설정
             );
+
+            // 신고가 표시
+            if (data === highestPoint) {
+                ctx.fillStyle = "green";
+                ctx.font = "12px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(
+                    `🔺 ${Math.round(data.high).toLocaleString()}원 (${data.minute})`,
+                    x,
+                    yHigh - 10
+                );
+            }
+
+            // 신저가 표시
+            if (data === lowestPoint) {
+                ctx.fillStyle = "blue";
+                ctx.font = "12px Arial";
+                ctx.textAlign = "center";
+                ctx.fillText(
+                    `🔻 ${Math.round(data.low).toLocaleString()}원 (${data.minute})`,
+                    x,
+                    yLow + 20
+                );
+            }
+        });
+
+        ctx.restore();
+    }
+
+    // 줌 이벤트 처리
+    canvas.addEventListener("wheel", event => {
+        if (chartData.length <= 1) return; // 봉 하나일 때 확대/축소 제한
+
+        event.preventDefault();
+        const zoomFactor = 1.1;
+
+        if (event.deltaY < 0) {
+            scale *= zoomFactor; // 확대
+        } else {
+            scale /= zoomFactor; // 축소
+        }
+        scale = Math.max(0.5, Math.min(scale, 10)); // 스케일 범위 제한
+
+        updateCanvasSize();
+        drawChart();
+    });
+
+    // 드래그 이벤트 처리
+    canvas.addEventListener("mousedown", event => {
+        isDragging = true;
+        startDragX = event.clientX - offsetX;
+    });
+
+    canvas.addEventListener("mousemove", event => {
+        if (isDragging) {
+            offsetX = event.clientX - startDragX;
+            drawChart();
         }
     });
 
-    ctx.restore();
-}
+    canvas.addEventListener("mouseup", () => {
+        isDragging = false;
+    });
 
-// 줌 이벤트 처리
-canvas.addEventListener("wheel", event => {
-    if (chartData.length <= 1) return; // 봉 하나일 때 확대/축소 제한
+    canvas.addEventListener("mouseleave", () => {
+        isDragging = false;
+    });
 
-    event.preventDefault();
-    const zoomFactor = 1.1;
+    // 1초마다 데이터 업데이트 >>> 0.1초인데??? (100ms)
+    setInterval(fetchData, 100);
 
-    if (event.deltaY < 0) {
-        scale *= zoomFactor; // 확대
-    } else {
-        scale /= zoomFactor; // 축소
-    }
-    scale = Math.max(0.5, Math.min(scale, 10)); // 스케일 범위 제한
-
-    updateCanvasSize();
-    drawChart();
-});
-
-// 드래그 이벤트 처리
-canvas.addEventListener("mousedown", event => {
-    isDragging = true;
-    startDragX = event.clientX - offsetX;
-});
-
-canvas.addEventListener("mousemove", event => {
-    if (isDragging) {
-        offsetX = event.clientX - startDragX;
-        drawChart();
-    }
-});
-
-canvas.addEventListener("mouseup", () => {
-    isDragging = false;
-});
-
-canvas.addEventListener("mouseleave", () => {
-    isDragging = false;
-});
-
-// 1초마다 데이터 업데이트
-setInterval(fetchData, 100);
-
-// 초기 데이터 로드
-fetchData();
+    // 초기 데이터 로드
+    fetchData();
 
 </script>
+
 </html>
