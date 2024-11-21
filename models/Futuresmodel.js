@@ -1,5 +1,5 @@
-// const pool = require('../lib/db.js')
-// const logWithTime = require('../lib/logger.js');
+const pool = require('../lib/db.js')
+const logWithTime = require('../lib/logger.js');
 
 
 // /*
@@ -78,38 +78,45 @@
 //     }
 // }
 
-// exports.futures_inform = async (req) => {
-//     const db = await pool.getConnection();
-//     let result;
-//     try {
-//         if (req.params.futures_id === "all") {
-//             [result] = await db.query('select * from futures_inform');
-//         }
-//         else {
-//             [result] = await db.query('select * from futures_inform where futures_id = ?',[req.params.futures_id]);
-//         }
-//         return { status: 200, message: result };
-//     } catch (err) {
-//         logWithTime(err)
-//         return { status: 500, message: "500 (Pricelog) internet server error" };
-//     } finally {
-//         db.release();
-//     }
-// }
+exports.futures_inform = async (req) => {
+    const db = await pool.getConnection();
+    let result;
+    try {
+        if (req.params.futures_id === "all") {
+            [result] = await db.query('select * from futures_inform');
+        }
+        else {
+            [result] = await db.query('select * from futures_inform where futures_id = ?',[req.params.futures_id]);
+        }
+        return { status: 200, message: result };
+    } catch (err) {
+        logWithTime(err)
+        return { status: 500, message: "500 (Pricelog) internet server error" };
+    } finally {
+        db.release();
+    }
+}
 
-// exports.futures_pricelog = async (req) => {
-//     const db = await pool.getConnection();
-//     try {
-//         if (req.params.futures_id === "all") {
-//             [result] = await db.query('select * from futures_pricelog');
-//         } else {
-//             [result] = await db.query('select * from futures_pricelog where futures_id = ?',[req.params.futures_id]);
-//         }
-//         return { status: 200, message: result };
-//     } catch (err) {
-//         logWithTime(err)
-//         return { status: 500, message: "500 (Pricelog) internet server error" };
-//     } finally {
-//         db.release();
-//     }
-// }
+exports.futures_pricelog = async (req) => {
+    const db = await pool.getConnection();
+    try {
+            [result] = await db.query(`            
+            SELECT 
+                futures_id,
+                DATE_FORMAT(log_at, '%Y-%m-%d %H:%i') AS minute,
+                MIN(price) AS low,
+                MAX(price) AS high,
+                SUBSTRING_INDEX(GROUP_CONCAT(price ORDER BY log_at ASC), ',', 1) AS open,
+                SUBSTRING_INDEX(GROUP_CONCAT(price ORDER BY log_at DESC), ',', 1) AS close
+            FROM futures_pricelog
+            WHERE futures_id = ?
+            GROUP BY futures_id, minute
+            ORDER BY minute`,[req.params.futures_id]);
+        return { status: 200, message: result };
+    } catch (err) {
+        logWithTime(err)
+        return { status: 500, message: "500 (Pricelog) internet server error" };
+    } finally {
+        db.release();
+    }
+}

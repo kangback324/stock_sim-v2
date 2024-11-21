@@ -5,22 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Candle Chart</title>
     <style>
-        canvas {
-            border: 1px solid black;
+        .big {
+            font-size: 25px;
+        }
+        .number-buttons {
+            margin-bottom: 10px;
+        }
+        .number-buttons button {
+            font-size: 20px;
+            margin: 5px;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>Candle Chart</h1>
-    <div id="controls">
-        <button onclick="adjustCandleSize(5)">작게</button>
-        <button onclick="adjustCandleSize(10)">보통</button>
-        <button onclick="adjustCandleSize(20)">크게</button>
-    </div>
-    <div id="chartContainer" style="overflow-x: auto; white-space: nowrap; width: 1500px; height: 600px;">
+    <h1 id="price">주식이름</h1>
+    <p id="name">이름</p>
+    <p class="big">상장대비 <span id="create_before"></span> %</p>
+    <p class="big">전봉대비 <span id="bong_before"></span> %</p>
+    <p></p>
+
+
+        <button onclick="updateApiUrl(1)">1</button>
+        <button onclick="updateApiUrl(2)">2</button>
+        <button onclick="updateApiUrl(3)">3</button>
+        <button onclick="updateApiUrl(4)">4</button>
+        <button onclick="updateApiUrl(5)">5</button>
+        <button onclick="updateApiUrl(6)">6</button>
+        <button onclick="updateApiUrl(7)">7</button>
+
+    <div id="chartContainer" style="white-space: nowrap; width: 1000px; height: 600px;">
         <canvas id="candleChart" style="display: block;"></canvas>
     </div>
-     
-    <script src="chart.js"></script>
 </body>
+<script src="./chart.js"></script>
 </html>

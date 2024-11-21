@@ -77,7 +77,30 @@ create table chat_log (
 	content varchar (512) not null
 );
 
+
+
 /* 로컬에서 최초실행시 필요한 데이터 */
+
+drop table stock_inform;
+
+create table stock_inform (
+	stock_id int auto_increment primary key,
+	name varchar (20) not null, 
+	price int not null, 
+	status varchar(1) not null,
+	create_at datetime DEFAULT now(),
+	broken_at datetime
+);
+
+/* 리셋하기 */
+ 
+delete from futures_inform;
+delete from futures_pricelog;
+delete from futures_user;
+delete from stock_inform;
+delete from stock_log;
+delete from stock_pricelog;
+delete from stock_user;
 
 insert into stock_inform values(null, '문경테크놀로지', 45000, 'Y', now(), null);
 insert into stock_inform values(null, '은수에어로스페이스', 80000, 'Y', now(), null);
@@ -97,25 +120,5 @@ insert into stock_pricelog values(6, 35000, now());
 insert into futures_inform values(1, 'MCSPI', 1500, 'Y', now(), null);
 insert into futures_pricelog values(1, 1500, now());
 
-/* 리셋하기 */
- 
-delete from futures_inform;
-delete from futures_pricelog;
-delete from futures_user;
-delete from stock_inform;
-delete from stock_log;
-delete from stock_pricelog;
-delete from stock_user;
 
-SELECT 
-    stock_id,
-    DATE_FORMAT(log_at, '%Y-%m-%d %H:%i') AS minute,
-    MIN(price) AS low,
-    MAX(price) AS high,
-    SUBSTRING_INDEX(GROUP_CONCAT(price ORDER BY log_at ASC), ',', 1) AS open,
-    SUBSTRING_INDEX(GROUP_CONCAT(price ORDER BY log_at DESC), ',', 1) AS close
-FROM stock_pricelog
-WHERE stock_id = 20
---   AND log_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
-GROUP BY stock_id, minute
-ORDER BY minute;
+

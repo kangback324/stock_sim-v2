@@ -21,9 +21,9 @@
     // router.post('/buy-futures', authmiddleware,  FuturesController.buy_futures);
     // router.post('/sell-futures', authmiddleware, FuturesController.sell_futures)
 
-    // //선물 거래가능한 기초자산 정보 
-    // router.get('/futures-inform/:futures_id', FuturesController.futures_inform);
-    // router.get('/futures-pricelog/:futures_id', FuturesController.futures_pricelog);
+    //선물 거래가능한 기초자산 정보 
+    router.get('/futures-inform/:futures_id', FuturesController.futures_inform);
+    router.get('/futures-pricelog/:futures_id', FuturesController.futures_pricelog);
 
 
 
