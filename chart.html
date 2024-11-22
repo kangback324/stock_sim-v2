@@ -127,7 +127,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ctx = canvas.getContext("2d");
 
     // let apiUrl = "http://localhost:3000/stock/futures-pricelog/1";
-    let apiUrl = "http://localhost:3000/stock/stock-pricelog/8/30";
+    let apiUrl = "http://localhost:3000/stock/stock-pricelog/4/60";
 
     let chartData = [];
     let candleWidth = 10;
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let startDragX = 0;
 
     function updateApiUrl(number) {
-        apiUrl = `http://localhost:3000/stock/stock-pricelog/${number}/30`;
+        apiUrl = `http://localhost:3000/stock/stock-pricelog/${number}/60`;
     }
 
     // 서버에서 데이터 가져오기

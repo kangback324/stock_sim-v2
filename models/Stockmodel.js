@@ -23,7 +23,7 @@ exports.buy = async (req) => {
             return { status: 400, message: "Not enough money" };
         }
         //로그 남기기
-        await db.query('insert into stock_log values(?, ?, ?, "buy", now(), ?)',[user[0].account_id,stock_inform[0].stock_id,req.body.number, stock_inform[0].price]);
+        await db.query('insert into stock_log values(?, ?, ?, ?, "buy", now())',[user[0].account_id,stock_inform[0].stock_id,req.body.number, stock_inform[0].price]);
 
         //돈 줄이기 , (수수료 로직 추가 하기)
         await db.query('update user set money = ? where account_id = ?',[user[0].money - (stock_inform[0].price * req.body.number), user[0].account_id]);
@@ -73,7 +73,7 @@ exports.sell = async (req) => {
                 return { status: 400, message: "wrong number" };
         }
         //로그 남기기
-        await db.query('insert into stock_log values(?, ?, ?, "sell", now(), ?)',[user[0].account_id,stock[0].stock_id,req.body.number, stock[0].price]);
+        await db.query('insert into stock_log values(?, ?, ?, ? "sell", now())',[user[0].account_id,stock[0].stock_id,req.body.number, stock[0].price]);
         //주식 제거하기
         if (stock_user[0].stock_number - req.body.number === 0) {
             await db.query('delete from stock_user where account_id = ? AND stock_id = ?',[user[0].account_id, stock[0].stock_id]);
@@ -162,7 +162,20 @@ exports.my_account = async (req) => {
     const db = await pool.getConnection();
     try {
     const [user] = await db.query('select * from user where user_id = ?',[req.session.user_id]);
-    const [result] = await db.query('SELECT si.name AS stock_name, su.stock_number, su.average_price FROM stock_user su INNER JOIN stock_inform si ON su.stock_id = si.stock_id where account_id = ?'
+    const [result] = await db.query(`
+            SELECT 
+                su.stock_id, 
+                si.name AS stock_name, 
+                su.stock_number, 
+                si.price AS nowprice, 
+                su.average_price
+            FROM 
+                stock_user su
+            INNER JOIN 
+                stock_inform si ON su.stock_id = si.stock_id
+            WHERE 
+                su.account_id = ?;
+        `
         ,[user[0].account_id]);
         return {
             status: 200, message: {
