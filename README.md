@@ -1,4 +1,4 @@
 ﻿# StockSimulator-Backend
 
-StockSimulator-Backend </br>
-<a href="nothing">Frontend Link</a>
+StockSimulator-Backend </br> </br>
+<a href="nothing">🔗 Frontend Link</a>
