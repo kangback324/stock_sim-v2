@@ -29,7 +29,9 @@ app.use(session({
 }));
 
 app.use((req, res, next) => {
-  console.log(req.ip);
+  const clientIp =
+  req.headers['x-forwarded-for']?.split(',')[0] || req.connection.remoteAddress;
+  console.log(`클라이언트 IP: ${clientIp}`);
   next();
 })
 
