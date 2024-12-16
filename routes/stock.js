@@ -10,7 +10,7 @@
 
     //주식 정보
     router.get('/stock-inform/:stock_id', StockController.stock_inform);
-    router.get('/stock-log/:stock_id', StockController.stock_log); //체결 로그
+    router.get('/stock-log/:stock_id', StockController.stock_log); //체x결 로그
     router.get('/stock-pricelog/:stock_id/:time', StockController.stock_pricelog); //가격변동 로그
 
     //계좌 관련

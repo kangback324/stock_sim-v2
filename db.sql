@@ -94,6 +94,7 @@ create table stock_inform (
 	broken_at datetime
 );
 
+
 /* 리셋하기 */
  
 delete from futures_inform;
