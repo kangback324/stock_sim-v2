@@ -27,19 +27,12 @@ app.use(session({
     httpOnly : true
   },
 }));
-
-app.use((req, res, next) => {
-  const clientIp =
-  req.headers['x-forwarded-for']?.split(',')[0] || req.connection.remoteAddress;
-  console.log(`클라이언트 IP: ${clientIp}`);
-  next();
-})
-
+app.use(morgan('combined'));
 app.use('/', root_router);
 app.use('/stock', stock_router);
 
 app.use((req, res)=>{
-  pretty(404, req, res, "Not Found")
+  pretty(404, req, res, "Not Found");
 });
 
 app.use((err, req, res, next) => {
