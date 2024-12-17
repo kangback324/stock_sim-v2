@@ -4,6 +4,13 @@
     const FuturesController = require('../controllers/FuturesController.js');
     const authmiddleware = require('../middleware/auth.js');
 
+    /**
+     * @swagger
+     * tags:
+     *   - name: Stocks
+     *     description: 주식 관련 API
+     */
+
     //주식 거래
     router.post('/buy', authmiddleware, StockController.buy);
     router.post('/sell', authmiddleware,  StockController.sell);
@@ -14,6 +21,31 @@
     router.get('/stock-pricelog/:stock_id/:time', StockController.stock_pricelog); //가격변동 로그
 
     //계좌 관련
+    /**
+ * @swagger
+ * /my-account:
+ *   get:
+ *     summary: 자기 자신의 정보를 반환
+ *     description: 자기 자신의 정보를 반환
+ *     tags:
+ *       - Stocks
+ *     responses:
+ *       200:
+ *         description: 자기 자신의 정보를 반환
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                     example: 1
+ *                   name:
+ *                     type: string
+ *                     example: John Doe
+ */
     router.get('/my-account', authmiddleware, StockController.my_account);
     router.get('/user-rank', StockController.user_rank);
 

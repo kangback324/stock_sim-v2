@@ -133,10 +133,17 @@ exports.stock_pricelog = async (req) => {
     const db = await pool.getConnection();
     let result;
     try {
-        [result] = await db.query(`
-            SELECT 
+        const timeInterval = parseInt(req.params.time); // 요청으로 받은 시간 간격 (분 단위)
+        if (isNaN(timeInterval) || timeInterval <= 0) {
+            return { status: 400, message: "Invalid time interval" };
+        }
+
+        [result] = await db.query(
+            `SELECT 
                 stock_id,
-                DATE_FORMAT(log_at, '%Y-%m-%d %H:%i:00') + INTERVAL FLOOR(SECOND(log_at) / ?) * ? SECOND AS minute,
+                FROM_UNIXTIME(
+                    FLOOR(UNIX_TIMESTAMP(log_at) / (? * 60)) * (? * 60)
+                ) AS minute,
                 MIN(price) AS low,
                 MAX(price) AS high,
                 SUBSTRING_INDEX(GROUP_CONCAT(price ORDER BY log_at ASC), ',', 1) AS open,
@@ -145,7 +152,8 @@ exports.stock_pricelog = async (req) => {
             WHERE stock_id = ?
             GROUP BY stock_id, minute
             ORDER BY minute
-        `, [req.params.time, req.params.time ,req.params.stock_id]);
+        `, [timeInterval, timeInterval, req.params.stock_id]);
+
         return { status: 200, message: result };
     } catch (err) {
         logWithTime(err);
@@ -154,6 +162,7 @@ exports.stock_pricelog = async (req) => {
         db.release();
     }
 };
+
 
 
 

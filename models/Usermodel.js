@@ -70,7 +70,7 @@ exports.logout = async (req) => {
     }
 };
 
-exports.isowner = async (req) => {
+exports.my_info = async (req) => {
     const db = await pool.getConnection();
     if (await isowner(req)) {
         try {

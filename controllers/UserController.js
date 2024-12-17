@@ -6,8 +6,8 @@ exports.signup = async (req, res) => {
   pretty(result.status, req, res, result.message)
 }
 
-exports.isowner = async (req, res) => {
-  const result = await Usermodel.isowner(req);
+exports.my_info = async (req, res) => {
+  const result = await Usermodel.my_info(req);
   pretty(result.status, req, res, result.message)
 }
 
