@@ -15,8 +15,8 @@ const UserController = require('../controllers/UserController');
  * @swagger
  * /my-info:
  *   get:
- *     summary: 계정 정보 반환
- *     description: 계정 정보 반환
+ *     summary: 현재 로그인된 계정 정보 반환
+ *     description: 현재 로그인된 계정 정보 반환
  *     tags:
  *       - Users
  *     responses:
@@ -296,25 +296,33 @@ router.post('/login', UserController.login);
  *     summary: 로그아웃
  *     description: 로그아웃
  *     tags:
- *       - Users
+ *       - Users 
  *     responses:
  *       200:
  *         description: 로그아웃
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                     example: 1
- *                   name:
- *                     type: string
- *                     example: John Doe
+ *               type: object
+ *               properties:
+ *                 statuscode:
+ *                   type: integer
+ *                   example: 200
+ *                 path:
+ *                   type: string
+ *                   example: "/logout"
+ *                 method:
+ *                   type: string
+ *                   example: "POST"
+ *                 data:
+ *                   type: object
+ *                   example: "success"
+ *                 timestamp:
+ *                   type: string
+ *                   format: date-time
+ *                   example: "2024-12-17T16:35:21+09:00"
  *       400:
- *         description: 서버 에러
+ *         description: 로그인 필요
  *         content:
  *           application/json:
  *             schema:

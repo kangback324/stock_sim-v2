@@ -62,7 +62,7 @@ exports.sell = async (req) => {
         }
         if (isNaN(Number(req.body.number)) || Number.isInteger(Number(req.body.number)) === false || Number(req.body.number) < 0) {
             return { status: 400, message: "wrong number" };
-        }
+        }                                                                                                                                                                                           
         //뭐 샀는지 조회
         const [stock_user] = await db.query('select stock_number from stock_user where account_id = ? AND stock_id = ?',[user[0].account_id, stock[0].stock_id]);
         if (stock_user[0] === undefined) {
@@ -73,7 +73,7 @@ exports.sell = async (req) => {
                 return { status: 400, message: "wrong number" };
         }
         //로그 남기기
-        await db.query('insert into stock_log values(?, ?, ?, ? "sell", now())',[user[0].account_id,stock[0].stock_id,req.body.number, stock[0].price]);
+        await db.query("insert into stock_log values(?, ?, ?, ?, 'sell', now())",[user[0].account_id,stock[0].stock_id,req.body.number, stock[0].price]);
         //주식 제거하기
         if (stock_user[0].stock_number - req.body.number === 0) {
             await db.query('delete from stock_user where account_id = ? AND stock_id = ?',[user[0].account_id, stock[0].stock_id]);
@@ -83,7 +83,7 @@ exports.sell = async (req) => {
         //돈주기, (수수료 로직 추가하기)
         await db.query('update user set money = ? where account_id = ?',[user[0].money + (stock[0].price * req.body.number) ,user[0].account_id]);
         await db.commit();
-        return { status: 200, message: "success !" };
+        return { status: 200, message: "success" };
     } catch (err) {
         logWithTime(err);
         await db.rollback();
@@ -188,7 +188,6 @@ exports.my_account = async (req) => {
         ,[user[0].account_id]);
         return {
             status: 200, message: {
-            money : user[0].money,
             stock : result
          }};
     } catch (err) {
@@ -204,7 +203,7 @@ exports.my_account = async (req) => {
 exports.user_rank = async () => {
     const db = await pool.getConnection();
     try {
-        const [result] = await db.query('select user_id, money from user ORDER BY money desc limit 10')
+        const [result] = await db.query('select user_id as user_name, money from user ORDER BY money desc limit 10')
         return {status : 200, message : result};
     } catch (err) {
         logWithTime(err);
